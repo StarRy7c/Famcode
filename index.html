@@ -55,6 +55,39 @@
       100% { transform: translateY(0); opacity: 1; }
     }
 
+    @keyframes fadeInUp {
+      0% {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInLeft {
+      0% {
+        opacity: 0;
+        transform: translateX(-50px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes fadeInRight {
+      0% {
+        opacity: 0;
+        transform: translateX(50px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
     @keyframes glow {
       0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.5); }
       50% { box-shadow: 0 0 40px rgba(124, 58, 237, 0.8), 0 0 60px rgba(99, 102, 241, 0.4); }
@@ -130,13 +163,24 @@
       transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
       border: 1px solid rgba(255, 255, 255, 0.1);
-      animation: slideInFromLeft 0.8s ease-out;
       position: relative;
       overflow: hidden;
+      opacity: 0;
+      transform: translateY(50px);
     }
 
-    .match-card:nth-child(even) {
-      animation: slideInFromRight 0.8s ease-out;
+    .match-card.animate-in {
+      animation: fadeInUp 0.8s ease-out forwards;
+    }
+
+    .match-card.animate-left {
+      transform: translateX(-50px);
+      animation: fadeInLeft 0.8s ease-out forwards;
+    }
+
+    .match-card.animate-right {
+      transform: translateX(50px);
+      animation: fadeInRight 0.8s ease-out forwards;
     }
 
     .match-card::before {
@@ -166,6 +210,7 @@
       transition: transform 0.3s ease;
       border-radius: 15px;
       object-fit: cover;
+      background: linear-gradient(135deg, #374151, #4b5563);
     }
     
     .match-card:hover .match-img {
@@ -276,6 +321,18 @@
     .tab-container {
       animation: slideInFromBottom 1s ease-out;
     }
+
+    .logo-placeholder {
+      width: 100%;
+      height: 192px;
+      background: linear-gradient(135deg, #374151, #4b5563);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
   </style>
 </head>
 <body>
@@ -301,6 +358,34 @@
 
   <script>
     const sectionUpcoming = document.getElementById('upcoming');
+
+    // Intersection Observer for scroll animations
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, index) => {
+        if (entry.isIntersecting) {
+          const card = entry.target;
+          const cardIndex = Array.from(card.parentElement.children).indexOf(card);
+          
+          // Add delay based on card position
+          setTimeout(() => {
+            if (cardIndex % 3 === 0) {
+              card.classList.add('animate-left');
+            } else if (cardIndex % 3 === 1) {
+              card.classList.add('animate-in');
+            } else {
+              card.classList.add('animate-right');
+            }
+          }, cardIndex * 100);
+          
+          observer.unobserve(card);
+        }
+      });
+    }, observerOptions);
 
     async function fetchLiveEvents() {
       const urls = [
@@ -336,7 +421,6 @@
 
               const card = document.createElement("div");
               card.className = "match-card";
-              card.style.animationDelay = `${matchCount * 0.1}s`;
 
               const content = document.createElement("div");
               content.className = "card-content";
@@ -347,8 +431,20 @@
                 img.src = logo;
                 img.alt = title || `Live Match ${matchCount}`;
                 img.className = "match-img w-full h-48 object-cover rounded-xl mb-4";
-                img.onerror = function() { this.style.display = 'none'; }; // Hide if image fails to load
+                img.onerror = function() { 
+                  // Create placeholder when image fails
+                  const placeholder = document.createElement("div");
+                  placeholder.className = "logo-placeholder";
+                  placeholder.innerHTML = "🏏";
+                  this.parentNode.replaceChild(placeholder, this);
+                };
                 content.appendChild(img);
+              } else {
+                // Create placeholder when no logo URL
+                const placeholder = document.createElement("div");
+                placeholder.className = "logo-placeholder";
+                placeholder.innerHTML = "🏏";
+                content.appendChild(placeholder);
               }
 
               const titleEl = document.createElement("h2");
@@ -364,7 +460,8 @@
               content.appendChild(btn);
 
               card.appendChild(content);
-              sectionLive.appendChild(card);
+              sectionUpcoming.appendChild(card);
+              observer.observe(card);
             }
           }
 
@@ -379,7 +476,7 @@
       }
 
       // If all URLs failed, show placeholder content
-      showPlaceholderContent(sectionLive, "live");
+      showPlaceholderContent(sectionUpcoming, "live");
     }
 
     async function fetchUpcoming() {
@@ -400,12 +497,34 @@
             data.matches.forEach((match, index) => {
               const card = document.createElement("div");
               card.className = "match-card";
-              card.style.animationDelay = `${index * 0.1}s`;
 
               const content = document.createElement("div");
               content.className = "card-content";
 
-              content.innerHTML = `
+              // Add logo/placeholder at the top
+              const logoContainer = document.createElement("div");
+              if (match.logo || match.event_logo) {
+                const img = document.createElement("img");
+                img.src = match.logo || match.event_logo;
+                img.alt = match.event_name || 'Cricket Match';
+                img.className = "match-img w-full h-48 object-cover rounded-xl mb-4";
+                img.onerror = function() {
+                  const placeholder = document.createElement("div");
+                  placeholder.className = "logo-placeholder";
+                  placeholder.innerHTML = "🏏";
+                  this.parentNode.replaceChild(placeholder, this);
+                };
+                logoContainer.appendChild(img);
+              } else {
+                const placeholder = document.createElement("div");
+                placeholder.className = "logo-placeholder";
+                placeholder.innerHTML = "🏏";
+                logoContainer.appendChild(placeholder);
+              }
+              content.appendChild(logoContainer);
+
+              const matchInfo = document.createElement("div");
+              matchInfo.innerHTML = `
                 <h2 class="match-title">${match.event_name || 'Cricket Match'}</h2>
                 <p class="text-lg text-gray-300 mb-2 font-semibold">${match.match_name || 'Teams TBD'}</p>
                 <p class="text-sm text-gray-400 mb-6">⏰ Start: ${match.startTime || 'TBD'}</p>
@@ -415,9 +534,11 @@
                   ${!match.dai_url && !match.adfree_url ? '<span class="text-gray-400 text-sm">Coming Soon</span>' : ''}
                 </div>
               `;
+              content.appendChild(matchInfo);
               
               card.appendChild(content);
               sectionUpcoming.appendChild(card);
+              observer.observe(card);
             });
 
             console.log(`Loaded ${data.matches.length} upcoming matches successfully`);
@@ -449,10 +570,15 @@
       placeholderData.forEach((matchTitle, index) => {
         const card = document.createElement("div");
         card.className = "match-card";
-        card.style.animationDelay = `${index * 0.2}s`;
 
         const content = document.createElement("div");
         content.className = "card-content";
+
+        // Add placeholder logo
+        const placeholder = document.createElement("div");
+        placeholder.className = "logo-placeholder";
+        placeholder.innerHTML = "🏏";
+        content.appendChild(placeholder);
 
         const titleEl = document.createElement("h2");
         titleEl.className = "match-title";
@@ -477,24 +603,17 @@
         content.appendChild(btn);
         card.appendChild(content);
         section.appendChild(card);
+        observer.observe(card);
       });
     }
 
-    // Add staggered loading animation
-    function addStaggeredAnimation() {
-      const cards = document.querySelectorAll('.match-card');
-      cards.forEach((card, index) => {
-        card.style.animationDelay = `${index * 0.1}s`;
-      });
-    }
+    // Load data
+    fetchUpcoming();
 
-    // Load data and add animations
-    fetchUpcoming().then(addStaggeredAnimation);
-
-    // Add periodic animation refresh
+    // Add periodic animation refresh for visible cards
     setInterval(() => {
-      const activeCards = document.querySelectorAll('.match-card:not(.hidden)');
-      activeCards.forEach((card, index) => {
+      const visibleCards = document.querySelectorAll('.match-card.animate-in, .match-card.animate-left, .match-card.animate-right');
+      visibleCards.forEach((card, index) => {
         setTimeout(() => {
           card.style.animation = 'pulse 0.5s ease-in-out';
           setTimeout(() => {
@@ -502,7 +621,7 @@
           }, 500);
         }, index * 100);
       });
-    }, 10000); // Every 10 seconds
+    }, 15000); // Every 15 seconds
   </script>
 </body>
 </html>
