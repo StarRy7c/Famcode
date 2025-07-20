@@ -706,4 +706,131 @@
               observer.observe(card);
             });
 
-            console.log(`Loaded ${
+            console.log(`Loaded ${data.length} matches successfully`);
+            return; // Success, exit function
+          }
+        } catch (e) {
+          console.log(`Failed to fetch from ${url}:`, e.message);
+          continue; // Try next URL
+        }
+      }
+
+      // If all URLs failed, show placeholder content
+      showPlaceholderContent(sectionUpcoming);
+    }
+
+    function showPlaceholderContent(section) {
+      console.log(`Showing placeholder content for matches`);
+      
+      const placeholderData = [
+        {
+          title: "India vs Sri Lanka",
+          time: "Tomorrow 2:30 PM",
+          status: "UPCOMING",
+          teams: "IND vs SL"
+        },
+        {
+          title: "Australia vs West Indies", 
+          time: "July 21, 7:00 PM",
+          status: "LIVE",
+          teams: "AUS vs WI"
+        },
+        {
+          title: "England vs Bangladesh",
+          time: "July 22, 3:30 PM", 
+          status: "UPCOMING",
+          teams: "ENG vs BAN"
+        },
+        {
+          title: "South Africa vs Pakistan",
+          time: "July 23, 5:00 PM",
+          status: "UPCOMING", 
+          teams: "SA vs PAK"
+        },
+        {
+          title: "New Zealand vs Afghanistan",
+          time: "July 24, 1:30 PM",
+          status: "UPCOMING",
+          teams: "NZ vs AFG"
+        },
+        {
+          title: "India vs Australia",
+          time: "July 25, 8:00 PM",
+          status: "UPCOMING",
+          teams: "IND vs AUS"
+        }
+      ];
+
+      placeholderData.forEach((match, index) => {
+        const card = document.createElement("div");
+        card.className = "match-card";
+
+        const content = document.createElement("div");
+        content.className = "card-content";
+
+        // Add placeholder logo
+        const placeholder = document.createElement("div");
+        placeholder.className = "logo-placeholder";
+        placeholder.innerHTML = "🏏";
+        content.appendChild(placeholder);
+
+        const statusBadge = document.createElement("span");
+        statusBadge.className = `status-badge ${match.status === 'LIVE' ? 'status-live' : 'status-upcoming'}`;
+        statusBadge.innerHTML = match.status === 'LIVE' ? '🔴 LIVE' : '📅 UPCOMING';
+        content.appendChild(statusBadge);
+
+        const titleEl = document.createElement("h2");
+        titleEl.className = "match-title";
+        titleEl.innerText = match.title;
+        content.appendChild(titleEl);
+
+        const teamsEl = document.createElement("p");
+        teamsEl.className = "text-lg text-gray-300 mb-2 font-semibold";
+        teamsEl.innerText = match.teams;
+        content.appendChild(teamsEl);
+
+        const timeEl = document.createElement("p");
+        timeEl.className = "text-sm text-gray-400 mb-6";
+        timeEl.innerText = "⏰ " + match.time;
+        content.appendChild(timeEl);
+
+        const buttonContainer = document.createElement("div");
+        buttonContainer.className = "flex flex-wrap justify-center gap-3";
+
+        if (match.status === 'LIVE') {
+          const watchBtn = document.createElement("div");
+          watchBtn.className = "btn btn-primary";
+          watchBtn.innerHTML = "🎬 Watch Live";
+          watchBtn.style.cursor = "pointer";
+          watchBtn.onclick = () => alert("This is a demo match. Real matches will have working streaming links!");
+          buttonContainer.appendChild(watchBtn);
+
+          const adFreeBtn = document.createElement("div");
+          adFreeBtn.className = "btn btn-secondary";
+          adFreeBtn.innerHTML = "✨ Ad-Free";
+          adFreeBtn.style.cursor = "pointer";
+          adFreeBtn.onclick = () => alert("This is a demo match. Real matches will have working ad-free links!");
+          buttonContainer.appendChild(adFreeBtn);
+        } else {
+          const reminderBtn = document.createElement("div");
+          reminderBtn.className = "btn btn-secondary";
+          reminderBtn.innerHTML = "⏰ Set Reminder";
+          reminderBtn.style.cursor = "pointer";
+          reminderBtn.onclick = () => alert("Reminder set! This is a demo match - real matches will have working reminder functionality!");
+          buttonContainer.appendChild(reminderBtn);
+        }
+        
+        content.appendChild(buttonContainer);
+        card.appendChild(content);
+        addCardInteractivity(card);
+        section.appendChild(card);
+        observer.observe(card);
+      });
+    }
+
+    // Initialize everything
+    createMouseTrail();
+    fetchUpcoming();
+  </script>
+</body>
+</html>
