@@ -1,627 +1,225 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CrixZy Events</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
-    
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      background: linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #1e293b);
-      background-size: 400% 400%;
-      animation: gradientShift 15s ease infinite;
-      color: white;
-      font-family: 'Inter', sans-serif;
-      padding: 16px;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0px) rotate(0deg); }
-      33% { transform: translateY(-20px) rotate(1deg); }
-      66% { transform: translateY(-10px) rotate(-1deg); }
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
-
-    @keyframes slideInFromLeft {
-      0% { transform: translateX(-100%) rotate(-5deg); opacity: 0; }
-      100% { transform: translateX(0) rotate(0deg); opacity: 1; }
-    }
-
-    @keyframes slideInFromRight {
-      0% { transform: translateX(100%) rotate(5deg); opacity: 0; }
-      100% { transform: translateX(0) rotate(0deg); opacity: 1; }
-    }
-
-    @keyframes slideInFromBottom {
-      0% { transform: translateY(50px); opacity: 0; }
-      100% { transform: translateY(0); opacity: 1; }
-    }
-
-    @keyframes fadeInUp {
-      0% {
-        opacity: 0;
-        transform: translateY(50px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes fadeInLeft {
-      0% {
-        opacity: 0;
-        transform: translateX(-50px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-
-    @keyframes fadeInRight {
-      0% {
-        opacity: 0;
-        transform: translateX(50px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-
-    @keyframes glow {
-      0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.5); }
-      50% { box-shadow: 0 0 40px rgba(124, 58, 237, 0.8), 0 0 60px rgba(99, 102, 241, 0.4); }
-    }
-
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-2px) rotate(-0.5deg); }
-      75% { transform: translateX(2px) rotate(0.5deg); }
-    }
-
-    .floating-bg {
-      position: fixed;
-      width: 100px;
-      height: 100px;
-      background: linear-gradient(45deg, rgba(99, 102, 241, 0.1), rgba(124, 58, 237, 0.1));
-      border-radius: 50%;
-      animation: float 6s ease-in-out infinite;
-      z-index: -1;
-    }
-
-    .floating-bg:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
-    .floating-bg:nth-child(2) { top: 20%; right: 10%; animation-delay: 2s; }
-    .floating-bg:nth-child(3) { bottom: 20%; left: 20%; animation-delay: 4s; }
-    .floating-bg:nth-child(4) { bottom: 10%; right: 20%; animation-delay: 1s; }
-
-    .tab {
-      cursor: pointer;
-      padding: 12px 24px;
-      font-weight: 700;
-      border-radius: 50px;
-      background: linear-gradient(135deg, #1e293b, #334155);
-      margin: 8px;
-      color: white;
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      position: relative;
-      overflow: hidden;
-      border: 2px solid transparent;
-      animation: slideInFromBottom 0.6s ease-out;
-    }
-
-    .tab::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-      transition: left 0.5s;
-    }
-
-    .tab:hover::before {
-      left: 100%;
-    }
-
-    .tab:hover {
-      transform: translateY(-3px) scale(1.05);
-      border-color: rgba(99, 102, 241, 0.5);
-      animation: glow 2s ease-in-out infinite;
-    }
-
-    .tab.active {
-      background: linear-gradient(135deg, #6366f1, #7c3aed, #8b5cf6);
-      color: white;
-      transform: translateY(-2px) scale(1.1);
-      animation: pulse 3s ease-in-out infinite, glow 2s ease-in-out infinite;
-    }
-
-    .match-card {
-      background: linear-gradient(135deg, #1e293b, #334155);
-      border-radius: 20px;
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      position: relative;
-      overflow: hidden;
-      opacity: 0;
-      transform: translateY(50px);
-    }
-
-    .match-card.animate-in {
-      animation: fadeInUp 0.8s ease-out forwards;
-    }
-
-    .match-card.animate-left {
-      transform: translateX(-50px);
-      animation: fadeInLeft 0.8s ease-out forwards;
-    }
-
-    .match-card.animate-right {
-      transform: translateX(50px);
-      animation: fadeInRight 0.8s ease-out forwards;
-    }
-
-    .match-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(45deg, rgba(99, 102, 241, 0.05), rgba(124, 58, 237, 0.05));
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    .match-card:hover {
-      transform: translateY(-15px) scale(1.05) rotate(1deg);
-      box-shadow: 0 25px 50px rgba(99, 102, 241, 0.3), 0 0 50px rgba(124, 58, 237, 0.2);
-      border-color: rgba(99, 102, 241, 0.5);
-      animation: shake 0.5s ease-in-out;
-    }
-
-    .match-card:hover::before {
-      opacity: 1;
-    }
-
-    .match-img {
-      transition: transform 0.3s ease;
-      border-radius: 15px;
-      object-fit: cover;
-      background: linear-gradient(135deg, #374151, #4b5563);
-    }
-    
-    .match-card:hover .match-img {
-      transform: scale(1.05);
-    }
-
-    .card-content {
-      padding: 2rem;
-      text-align: center;
-    }
-
-    .match-title {
-      background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      font-size: 1.25rem;
-      font-weight: 800;
-      margin-bottom: 1.5rem;
-      animation: pulse 4s ease-in-out infinite;
-    }
-
-    .btn {
-      padding: 12px 24px;
-      border-radius: 25px;
-      font-weight: 700;
-      font-size: 14px;
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      position: relative;
-      overflow: hidden;
-      border: none;
-      text-decoration: none;
-      display: inline-block;
-      margin: 5px;
-    }
-
-    .btn::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 0;
-      height: 0;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
-      transition: all 0.5s ease;
-    }
-
-    .btn:hover::before {
-      width: 300px;
-      height: 300px;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #7c3aed, #6366f1, #8b5cf6);
-      color: white;
-      box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
-    }
-
-    .btn-primary:hover {
-      background: linear-gradient(135deg, #6d28d9, #4f46e5, #7c3aed);
-      transform: translateY(-3px) scale(1.1);
-      box-shadow: 0 15px 40px rgba(124, 58, 237, 0.6);
-      animation: glow 1s ease-in-out infinite;
-    }
-
-    .btn-secondary {
-      background: linear-gradient(135deg, #10b981, #22c55e, #34d399);
-      color: white;
-      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
-    }
-
-    .btn-secondary:hover {
-      background: linear-gradient(135deg, #059669, #16a34a, #10b981);
-      transform: translateY(-3px) scale(1.1);
-      box-shadow: 0 15px 40px rgba(16, 185, 129, 0.6);
-      animation: glow 1s ease-in-out infinite;
-    }
-
-    .section-container {
-      animation: slideInFromBottom 1s ease-out;
-    }
-
-    .disclaimer {
-      background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(99, 102, 241, 0.1));
-      border: 1px solid rgba(124, 58, 237, 0.3);
-      border-radius: 15px;
-      padding: 20px;
-      margin-top: 40px;
-      text-align: center;
-      backdrop-filter: blur(10px);
-      animation: slideInFromBottom 1.2s ease-out;
-    }
-
-    .title {
-      text-align: center;
-      margin-bottom: 2rem;
-      font-size: 3rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, #f8fafc, #e2e8f0, #cbd5e1);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      animation: slideInFromBottom 0.8s ease-out, pulse 6s ease-in-out infinite;
-    }
-
-    .tab-container {
-      animation: slideInFromBottom 1s ease-out;
-    }
-
-    .logo-placeholder {
-      width: 100%;
-      height: 192px;
-      background: linear-gradient(135deg, #374151, #4b5563);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 3rem;
-      margin-bottom: 1rem;
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CrixZy Events</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+        :root {
+            --primary-glow: rgba(99, 102, 241, 0.5);
+            --secondary-glow: rgba(124, 58, 237, 0.8);
+        }
+        * { box-sizing: border-box; }
+        body {
+            background: linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #1e293b);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            padding: 16px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes fadeInUp { 0% { opacity: 0; transform: translateY(50px); } 100% { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInLeft { 0% { opacity: 0; transform: translateX(-50px); } 100% { opacity: 1; transform: translateX(0); } }
+        @keyframes fadeInRight { 0% { opacity: 0; transform: translateX(50px); } 100% { opacity: 1; transform: translateX(0); } }
+        
+        .title {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .match-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.5), rgba(51, 65, 85, 0.5));
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            opacity: 0; /* Start hidden for animation */
+        }
+        .match-card.animate-in { animation: fadeInUp 0.7s ease-out forwards; }
+        .match-card.animate-left { animation: fadeInLeft 0.7s ease-out forwards; }
+        .match-card.animate-right { animation: fadeInRight 0.7s ease-out forwards; }
+        .match-card:hover {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4), 0 0 40px var(--primary-glow);
+            border-color: var(--primary-glow);
+        }
+        .card-header { position: relative; }
+        .match-img {
+            width: 100%;
+            height: 192px;
+            object-fit: cover;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
+        .logo-placeholder {
+            width: 100%; height: 192px; background: #1e293b; border-top-left-radius: 20px; border-top-right-radius: 20px;
+            display: flex; align-items: center; justify-content: center; font-size: 3rem;
+        }
+        .status-badge {
+            position: absolute; top: 1rem; right: 1rem; padding: 4px 12px;
+            border-radius: 20px; font-weight: 700; font-size: 0.8rem;
+            background-color: rgba(0, 0, 0, 0.5); backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .status-badge.live { background-color: #ef4444; border: none; }
+        .card-content { padding: 1.5rem; text-align: center; }
+        .match-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .match-teams { font-size: 1rem; color: #cbd5e1; margin-bottom: 1.5rem; }
+        .btn {
+            padding: 12px 24px; border-radius: 25px; font-weight: 700;
+            transition: all 0.3s ease; text-decoration: none; display: inline-block; margin: 5px;
+            background: linear-gradient(135deg, #7c3aed, #6366f1);
+            color: white; box-shadow: 0 8px 25px rgba(124, 58, 237, 0.3);
+        }
+        .btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 30px rgba(124, 58, 237, 0.5);
+        }
+        .disclaimer { text-align: center; margin-top: 40px; padding: 20px; font-size: 0.9rem; color: #94a3b8; }
+    </style>
 </head>
 <body>
-  <!-- Floating Background Elements -->
-  <div class="floating-bg"></div>
-  <div class="floating-bg"></div>
-  <div class="floating-bg"></div>
-  <div class="floating-bg"></div>
+    <h1 class="title">🏏 CrixZy Upcoming Events</h1>
+    <main id="events-container" class="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"></main>
+    <footer class="disclaimer">
+        <p>⚠️ <strong>Disclaimer:</strong> All content is fetched from public sources. We do not host any content.</p>
+    </footer>
 
-  <!-- Main Title -->
-  <h1 class="title">🏏 CrixZy Upcoming Events</h1>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const eventsContainer = document.getElementById('events-container');
 
-  <!-- Section -->
-  <section id="upcoming" class="section-container grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"></section>
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const card = entry.target;
+                        const cardIndex = Array.from(card.parentElement.children).indexOf(card);
+                        
+                        // Staggered slide-in animation based on column
+                        if (cardIndex % 3 === 0) card.classList.add('animate-left');
+                        else if (cardIndex % 3 === 1) card.classList.add('animate-in');
+                        else card.classList.add('animate-right');
+                        
+                        observer.unobserve(card); // Animate only once
+                    }
+                });
+            }, { threshold: 0.1 });
 
-  <!-- Disclaimer -->
-  <div class="disclaimer">
-    <p class="text-sm text-gray-300">
-      ⚠️ <strong>Disclaimer:</strong> All content is fetched from public sources. We do not host any content. 
-      <br>Credit: drm | 🎯 Enjoy seamless live streaming experience
-    </p>
-  </div>
-
-  <script>
-    const sectionUpcoming = document.getElementById('upcoming');
-
-    // Intersection Observer for scroll animations
-    const observerOptions = {
-      threshold: 0.1,
-      rootMargin: '0px 0px -50px 0px'
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry, index) => {
-        if (entry.isIntersecting) {
-          const card = entry.target;
-          const cardIndex = Array.from(card.parentElement.children).indexOf(card);
-          
-          // Add delay based on card position
-          setTimeout(() => {
-            if (cardIndex % 3 === 0) {
-              card.classList.add('animate-left');
-            } else if (cardIndex % 3 === 1) {
-              card.classList.add('animate-in');
-            } else {
-              card.classList.add('animate-right');
+            /**
+             * Parses the custom date string "HH:mm:ss AM/PM DD-MM-YYYY" into a valid Date object.
+             */
+            function parseStartTime(dateString) {
+                if (!dateString) return null;
+                try {
+                    const parts = dateString.split(' ');
+                    const time = parts[0];
+                    const ampm = parts[1].toUpperCase();
+                    const [day, month, year] = parts[2].split('-');
+                    // Reassemble into a format JS understands reliably: YYYY-MM-DDTHH:mm:ss
+                    const isoString = `${year}-${month}-${day}T${time}`;
+                    const date = new Date(isoString);
+                    // Adjust for AM/PM
+                    if (ampm === 'PM' && date.getHours() < 12) {
+                        date.setHours(date.getHours() + 12);
+                    } else if (ampm === 'AM' && date.getHours() === 12) {
+                        date.setHours(0); // Handle midnight case
+                    }
+                    return date;
+                } catch (e) {
+                    return null;
+                }
             }
-          }, cardIndex * 100);
-          
-          observer.unobserve(card);
-        }
-      });
-    }, observerOptions);
 
-    async function fetchLiveEvents() {
-      const urls = [
-        "https://api.allorigins.win/raw?url=https://raw.githubusercontent.com/drmlive/fancode-live-events/main/fancode.m3u",
-        "https://corsproxy.io/?https://raw.githubusercontent.com/drmlive/fancode-live-events/main/fancode.m3u",
-        "https://cors-anywhere.herokuapp.com/https://raw.githubusercontent.com/drmlive/fancode-live-events/main/fancode.m3u"
-      ];
-      const prefix = "https://starry7c.github.io/CrixzyLive?stream=";
+            /**
+             * Determines the status of the match (Live, Today, Tomorrow, or a specific date).
+             */
+            function getMatchStatus(match) {
+                if (match.status === 'LIVE') {
+                    return '<span class="status-badge live">🔴 LIVE</span>';
+                }
+                const eventTime = parseStartTime(match.startTime);
+                if (!eventTime) return '';
 
-      for (const url of urls) {
-        try {
-          const res = await fetch(url);
-          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-          
-          const text = await res.text();
-          const lines = text.split('\n');
+                const now = new Date();
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                const tomorrow = new Date(today);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                
+                const eventDay = new Date(eventTime.getFullYear(), eventTime.getMonth(), eventTime.getDate());
 
-          let title = "", logo = "";
-          let matchCount = 0;
-
-          for (let i = 0; i < lines.length; i++) {
-            if (lines[i].startsWith("#EXTINF")) {
-              // Extract logo URL
-              const logoMatch = lines[i].match(/tvg-logo="(.*?)"/);
-              logo = logoMatch ? logoMatch[1] : "";
-
-              // Extract only the clean title (everything after the last comma)
-              const titleMatch = lines[i].match(/,([^,]+)$/);
-              title = titleMatch ? titleMatch[1].trim() : "Unknown Match";
-            } else if (lines[i].startsWith("http")) {
-              const streamUrl = lines[i].trim();
-              matchCount++;
-
-              const card = document.createElement("div");
-              card.className = "match-card";
-
-              const content = document.createElement("div");
-              content.className = "card-content";
-
-              // Add logo image if available
-              if (logo) {
-                const img = document.createElement("img");
-                img.src = logo;
-                img.alt = title || `Live Match ${matchCount}`;
-                img.className = "match-img w-full h-48 object-cover rounded-xl mb-4";
-                img.onerror = function() { 
-                  // Create placeholder when image fails
-                  const placeholder = document.createElement("div");
-                  placeholder.className = "logo-placeholder";
-                  placeholder.innerHTML = "🏏";
-                  this.parentNode.replaceChild(placeholder, this);
-                };
-                content.appendChild(img);
-              } else {
-                // Create placeholder when no logo URL
-                const placeholder = document.createElement("div");
-                placeholder.className = "logo-placeholder";
-                placeholder.innerHTML = "🏏";
-                content.appendChild(placeholder);
-              }
-
-              const titleEl = document.createElement("h2");
-              titleEl.className = "match-title";
-              titleEl.innerText = title || `Live Match ${matchCount}`;
-              content.appendChild(titleEl);
-
-              const btn = document.createElement("a");
-              btn.href = prefix + encodeURIComponent(streamUrl);
-              btn.target = "_blank";
-              btn.className = "btn btn-primary";
-              btn.innerHTML = "🎬 Watch Live";
-              content.appendChild(btn);
-
-              card.appendChild(content);
-              sectionUpcoming.appendChild(card);
-              observer.observe(card);
+                if (today.getTime() === eventDay.getTime()) {
+                    return `<span class="status-badge">TODAY at ${eventTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>`;
+                }
+                if (tomorrow.getTime() === eventDay.getTime()) {
+                    return '<span class="status-badge">TOMORROW</span>';
+                }
+                return `<span class="status-badge">${eventTime.toLocaleDateString([], { month: 'short', day: 'numeric' })}</span>`;
             }
-          }
 
-          if (matchCount > 0) {
-            console.log(`Loaded ${matchCount} live matches successfully`);
-            return; // Success, exit function
-          }
-        } catch (e) {
-          console.log(`Failed to fetch from ${url}:`, e.message);
-          continue; // Try next URL
-        }
-      }
+            async function fetchAndDisplayEvents() {
+                const targetUrl = "https://raw.githubusercontent.com/drmlive/fancode-live-events/main/fancode.json";
+                const proxies = ["https://api.allorigins.win/raw?url=", "https://corsproxy.io/?"];
+                let events = null;
 
-      // If all URLs failed, show placeholder content
-      showPlaceholderContent(sectionUpcoming, "live");
-    }
+                for (const proxy of proxies) {
+                    try {
+                        const response = await fetch(proxy + encodeURIComponent(targetUrl));
+                        if (!response.ok) throw new Error(`Fetch failed with status ${response.status}`);
+                        events = await response.json();
+                        break; // Success, exit loop
+                    } catch (error) {
+                        console.error(`Attempt via ${proxy} failed:`, error);
+                    }
+                }
 
-    async function fetchUpcoming() {
-      const urls = [
-        "https://api.allorigins.win/raw?url=https://raw.githubusercontent.com/drmlive/fancode-live-events/main/fancode.json",
-        "https://corsproxy.io/?https://raw.githubusercontent.com/drmlive/fancode-live-events/main/fancode.json",
-        "https://cors-anywhere.herokuapp.com/https://raw.githubusercontent.com/drmlive/fancode-live-events/main/fancode.json"
-      ];
+                if (!events || !Array.isArray(events)) {
+                    eventsContainer.innerHTML = `<div class="col-span-full text-center p-8 bg-red-900 bg-opacity-30 rounded-lg">
+                        <h2 class="text-2xl font-bold text-red-400 mb-2">🚨 Could Not Load Events</h2>
+                        <p class="text-gray-300">Please check your connection or try again later.</p>
+                    </div>`;
+                    return;
+                }
 
-      for (const url of urls) {
-        try {
-          const res = await fetch(url);
-          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-          
-          const data = await res.json();
+                // **The provided JSON is a direct array, so we access it directly.**
+                events.forEach(match => {
+                    const card = document.createElement('div');
+                    card.className = 'match-card';
+                    
+                    const statusHTML = getMatchStatus(match);
+                    
+                    card.innerHTML = `
+                        <div class="card-header">
+                            ${match.src ? 
+                              `<img class="match-img" src="${match.src}" alt="${match.event_name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                               <div class="logo-placeholder" style="display:none;">🏏</div>` :
+                              `<div class="logo-placeholder">🏏</div>`
+                            }
+                            ${statusHTML}
+                        </div>
+                        <div class="card-content">
+                            <h3 class="match-title">${match.event_name || 'Cricket Match'}</h3>
+                            <p class="match-teams">${match.match_name || 'Teams TBD'}</p>
+                            <a href="https://starry7c.github.io/CrixzyLive?stream=${encodeURIComponent(match.dai_url)}" target="_blank" class="btn">🎬 Watch Live</a>
+                        </div>
+                    `;
+                    eventsContainer.appendChild(card);
+                    observer.observe(card); // Observe card for scroll animation
+                });
+            }
 
-          if (data && data.matches && Array.isArray(data.matches)) {
-            data.matches.forEach((match, index) => {
-              const card = document.createElement("div");
-              card.className = "match-card";
-
-              const content = document.createElement("div");
-              content.className = "card-content";
-
-              // Add logo/placeholder at the top
-              const logoContainer = document.createElement("div");
-              if (match.logo || match.event_logo) {
-                const img = document.createElement("img");
-                img.src = match.logo || match.event_logo;
-                img.alt = match.event_name || 'Cricket Match';
-                img.className = "match-img w-full h-48 object-cover rounded-xl mb-4";
-                img.onerror = function() {
-                  const placeholder = document.createElement("div");
-                  placeholder.className = "logo-placeholder";
-                  placeholder.innerHTML = "🏏";
-                  this.parentNode.replaceChild(placeholder, this);
-                };
-                logoContainer.appendChild(img);
-              } else {
-                const placeholder = document.createElement("div");
-                placeholder.className = "logo-placeholder";
-                placeholder.innerHTML = "🏏";
-                logoContainer.appendChild(placeholder);
-              }
-              content.appendChild(logoContainer);
-
-              const matchInfo = document.createElement("div");
-              matchInfo.innerHTML = `
-                <h2 class="match-title">${match.event_name || 'Cricket Match'}</h2>
-                <p class="text-lg text-gray-300 mb-2 font-semibold">${match.match_name || 'Teams TBD'}</p>
-                <p class="text-sm text-gray-400 mb-6">⏰ Start: ${match.startTime || 'TBD'}</p>
-                <div class="flex flex-wrap justify-center gap-3">
-                  ${match.dai_url ? `<a href="https://starry7c.github.io/CrixzyLive?stream=${encodeURIComponent(match.dai_url)}" target="_blank" class="btn btn-primary">🎬 Watch</a>` : ''}
-                  ${match.adfree_url ? `<a href="https://starry7c.github.io/CrixzyLive/?stream=${encodeURIComponent(match.adfree_url)}" target="_blank" class="btn btn-secondary">✨ Ad-Free</a>` : ''}
-                  ${!match.dai_url && !match.adfree_url ? '<span class="text-gray-400 text-sm">Coming Soon</span>' : ''}
-                </div>
-              `;
-              content.appendChild(matchInfo);
-              
-              card.appendChild(content);
-              sectionUpcoming.appendChild(card);
-              observer.observe(card);
-            });
-
-            console.log(`Loaded ${data.matches.length} upcoming matches successfully`);
-            return; // Success, exit function
-          }
-        } catch (e) {
-          console.log(`Failed to fetch upcoming from ${url}:`, e.message);
-          continue; // Try next URL
-        }
-      }
-
-      // If all URLs failed, show placeholder content
-      showPlaceholderContent(sectionUpcoming, "upcoming");
-    }
-
-    function showPlaceholderContent(section, type) {
-      console.log(`Showing placeholder content for ${type} matches`);
-      
-      const placeholderData = type === "live" ? [
-        "🏏 India vs Australia - Live",
-        "🏏 England vs Pakistan - Live", 
-        "🏏 New Zealand vs South Africa - Live"
-      ] : [
-        "🏏 India vs Sri Lanka - Tomorrow 2:30 PM",
-        "🏏 Australia vs West Indies - July 21, 7:00 PM",
-        "🏏 England vs Bangladesh - July 22, 3:30 PM"
-      ];
-
-      placeholderData.forEach((matchTitle, index) => {
-        const card = document.createElement("div");
-        card.className = "match-card";
-
-        const content = document.createElement("div");
-        content.className = "card-content";
-
-        // Add placeholder logo
-        const placeholder = document.createElement("div");
-        placeholder.className = "logo-placeholder";
-        placeholder.innerHTML = "🏏";
-        content.appendChild(placeholder);
-
-        const titleEl = document.createElement("h2");
-        titleEl.className = "match-title";
-        titleEl.innerText = matchTitle;
-        content.appendChild(titleEl);
-
-        const statusEl = document.createElement("p");
-        statusEl.className = "text-sm text-gray-400 mb-4";
-        statusEl.innerText = type === "live" ? "🔴 Live Now" : "📅 Scheduled";
-        content.appendChild(statusEl);
-
-        const btn = document.createElement("div");
-        btn.className = type === "live" ? "btn btn-primary" : "btn btn-secondary";
-        btn.innerHTML = type === "live" ? "🎬 Watch Live" : "⏰ Set Reminder";
-        btn.style.cursor = type === "live" ? "pointer" : "default";
-        btn.style.opacity = type === "live" ? "1" : "0.7";
-        
-        if (type === "upcoming") {
-          btn.onclick = () => alert("This is a demo match. Real matches will have working links!");
-        }
-        
-        content.appendChild(btn);
-        card.appendChild(content);
-        section.appendChild(card);
-        observer.observe(card);
-      });
-    }
-
-    // Load data
-    fetchUpcoming();
-
-    // Add periodic animation refresh for visible cards
-    setInterval(() => {
-      const visibleCards = document.querySelectorAll('.match-card.animate-in, .match-card.animate-left, .match-card.animate-right');
-      visibleCards.forEach((card, index) => {
-        setTimeout(() => {
-          card.style.animation = 'pulse 0.5s ease-in-out';
-          setTimeout(() => {
-            card.style.animation = '';
-          }, 500);
-        }, index * 100);
-      });
-    }, 15000); // Every 15 seconds
-  </script>
+            fetchAndDisplayEvents();
+        });
+    </script>
 </body>
 </html>
