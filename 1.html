@@ -1,225 +1,141 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CrixZy Events</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
-        :root {
-            --primary-glow: rgba(99, 102, 241, 0.5);
-            --secondary-glow: rgba(124, 58, 237, 0.8);
-        }
-        * { box-sizing: border-box; }
-        body {
-            background: linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #1e293b);
-            background-size: 400% 400%;
-            animation: gradientShift 15s ease infinite;
-            color: white;
-            font-family: 'Inter', sans-serif;
-            padding: 16px;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-        @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        @keyframes fadeInUp { 0% { opacity: 0; transform: translateY(50px); } 100% { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeInLeft { 0% { opacity: 0; transform: translateX(-50px); } 100% { opacity: 1; transform: translateX(0); } }
-        @keyframes fadeInRight { 0% { opacity: 0; transform: translateX(50px); } 100% { opacity: 1; transform: translateX(0); } }
-        
-        .title {
-            text-align: center;
-            margin-bottom: 2rem;
-            font-size: 3rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #f8fafc, #e2e8f0, #cbd5e1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .match-card {
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.5), rgba(51, 65, 85, 0.5));
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            position: relative;
-            overflow: hidden;
-            opacity: 0; /* Start hidden for animation */
-        }
-        .match-card.animate-in { animation: fadeInUp 0.7s ease-out forwards; }
-        .match-card.animate-left { animation: fadeInLeft 0.7s ease-out forwards; }
-        .match-card.animate-right { animation: fadeInRight 0.7s ease-out forwards; }
-        .match-card:hover {
-            transform: translateY(-10px) scale(1.03);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4), 0 0 40px var(--primary-glow);
-            border-color: var(--primary-glow);
-        }
-        .card-header { position: relative; }
-        .match-img {
-            width: 100%;
-            height: 192px;
-            object-fit: cover;
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-        }
-        .logo-placeholder {
-            width: 100%; height: 192px; background: #1e293b; border-top-left-radius: 20px; border-top-right-radius: 20px;
-            display: flex; align-items: center; justify-content: center; font-size: 3rem;
-        }
-        .status-badge {
-            position: absolute; top: 1rem; right: 1rem; padding: 4px 12px;
-            border-radius: 20px; font-weight: 700; font-size: 0.8rem;
-            background-color: rgba(0, 0, 0, 0.5); backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        .status-badge.live { background-color: #ef4444; border: none; }
-        .card-content { padding: 1.5rem; text-align: center; }
-        .match-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; }
-        .match-teams { font-size: 1rem; color: #cbd5e1; margin-bottom: 1.5rem; }
-        .btn {
-            padding: 12px 24px; border-radius: 25px; font-weight: 700;
-            transition: all 0.3s ease; text-decoration: none; display: inline-block; margin: 5px;
-            background: linear-gradient(135deg, #7c3aed, #6366f1);
-            color: white; box-shadow: 0 8px 25px rgba(124, 58, 237, 0.3);
-        }
-        .btn:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 12px 30px rgba(124, 58, 237, 0.5);
-        }
-        .disclaimer { text-align: center; margin-top: 40px; padding: 20px; font-size: 0.9rem; color: #94a3b8; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CrixZy Upcoming Events</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #0f172a;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 24px;
+    }
+
+    /* Animation Keyframes */
+    @keyframes cardFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(25px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .match-card {
+      background: #1e293b;
+      border-radius: 1rem;
+      transition: transform 0.3s ease, background 0.3s ease;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      /* Apply animation */
+      opacity: 0; /* Start hidden for animation */
+      animation: cardFadeIn 0.5s ease-out forwards;
+    }
+
+    .match-card:hover {
+      transform: translateY(-6px);
+      background: #334155;
+    }
+
+    .match-img {
+      transition: transform 0.3s ease;
+    }
+
+    .match-card:hover .match-img {
+      transform: scale(1.05);
+    }
+
+    .btn {
+      padding: 0.5rem 1.25rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      font-size: 0.875rem;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .btn-primary {
+      background: linear-gradient(to right, #7c3aed, #6366f1);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(to right, #6d28d9, #4f46e5);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(to right, #10b981, #22c55e);
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: linear-gradient(to right, #059669, #16a34a);
+    }
+  </style>
 </head>
 <body>
-    <h1 class="title">🏏 CrixZy Upcoming Events</h1>
-    <main id="events-container" class="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"></main>
-    <footer class="disclaimer">
-        <p>⚠️ <strong>Disclaimer:</strong> All content is fetched from public sources. We do not host any content.</p>
-    </footer>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const eventsContainer = document.getElementById('events-container');
+  <h1 class="text-4xl font-bold text-center mb-8 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-500">
+    Upcoming Events
+  </h1>
 
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const card = entry.target;
-                        const cardIndex = Array.from(card.parentElement.children).indexOf(card);
-                        
-                        // Staggered slide-in animation based on column
-                        if (cardIndex % 3 === 0) card.classList.add('animate-left');
-                        else if (cardIndex % 3 === 1) card.classList.add('animate-in');
-                        else card.classList.add('animate-right');
-                        
-                        observer.unobserve(card); // Animate only once
-                    }
-                });
-            }, { threshold: 0.1 });
+  <section id="upcoming" class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"></section>
 
-            /**
-             * Parses the custom date string "HH:mm:ss AM/PM DD-MM-YYYY" into a valid Date object.
-             */
-            function parseStartTime(dateString) {
-                if (!dateString) return null;
-                try {
-                    const parts = dateString.split(' ');
-                    const time = parts[0];
-                    const ampm = parts[1].toUpperCase();
-                    const [day, month, year] = parts[2].split('-');
-                    // Reassemble into a format JS understands reliably: YYYY-MM-DDTHH:mm:ss
-                    const isoString = `${year}-${month}-${day}T${time}`;
-                    const date = new Date(isoString);
-                    // Adjust for AM/PM
-                    if (ampm === 'PM' && date.getHours() < 12) {
-                        date.setHours(date.getHours() + 12);
-                    } else if (ampm === 'AM' && date.getHours() === 12) {
-                        date.setHours(0); // Handle midnight case
-                    }
-                    return date;
-                } catch (e) {
-                    return null;
-                }
-            }
+  <script>
+    const sectionUpcoming = document.getElementById('upcoming');
 
-            /**
-             * Determines the status of the match (Live, Today, Tomorrow, or a specific date).
-             */
-            function getMatchStatus(match) {
-                if (match.status === 'LIVE') {
-                    return '<span class="status-badge live">🔴 LIVE</span>';
-                }
-                const eventTime = parseStartTime(match.startTime);
-                if (!eventTime) return '';
+    async function fetchUpcoming() {
+      // Using a CORS proxy to fetch the data
+      const url = "https://api.allorigins.win/raw?url=https://raw.githubusercontent.com/drmlive/fancode-live-events/main/fancode.json";
 
-                const now = new Date();
-                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                const tomorrow = new Date(today);
-                tomorrow.setDate(tomorrow.getDate() + 1);
-                
-                const eventDay = new Date(eventTime.getFullYear(), eventTime.getMonth(), eventTime.getDate());
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
 
-                if (today.getTime() === eventDay.getTime()) {
-                    return `<span class="status-badge">TODAY at ${eventTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>`;
-                }
-                if (tomorrow.getTime() === eventDay.getTime()) {
-                    return '<span class="status-badge">TOMORROW</span>';
-                }
-                return `<span class="status-badge">${eventTime.toLocaleDateString([], { month: 'short', day: 'numeric' })}</span>`;
-            }
+        // Clear previous content in case of a re-fetch
+        sectionUpcoming.innerHTML = '';
 
-            async function fetchAndDisplayEvents() {
-                const targetUrl = "https://raw.githubusercontent.com/drmlive/fancode-live-events/main/fancode.json";
-                const proxies = ["https://api.allorigins.win/raw?url=", "https://corsproxy.io/?"];
-                let events = null;
+        if (data.matches && data.matches.length > 0) {
+            data.matches.forEach((match, index) => {
+              const card = document.createElement("div");
+              card.className = "match-card overflow-hidden";
 
-                for (const proxy of proxies) {
-                    try {
-                        const response = await fetch(proxy + encodeURIComponent(targetUrl));
-                        if (!response.ok) throw new Error(`Fetch failed with status ${response.status}`);
-                        events = await response.json();
-                        break; // Success, exit loop
-                    } catch (error) {
-                        console.error(`Attempt via ${proxy} failed:`, error);
-                    }
-                }
+              // Stagger the animation for each card
+              card.style.animationDelay = `${index * 100}ms`;
 
-                if (!events || !Array.isArray(events)) {
-                    eventsContainer.innerHTML = `<div class="col-span-full text-center p-8 bg-red-900 bg-opacity-30 rounded-lg">
-                        <h2 class="text-2xl font-bold text-red-400 mb-2">🚨 Could Not Load Events</h2>
-                        <p class="text-gray-300">Please check your connection or try again later.</p>
-                    </div>`;
-                    return;
-                }
+              card.innerHTML = `
+                <div class="relative overflow-hidden">
+                  <img src="${match.src}" alt="${match.title}" class="match-img w-full h-60 object-cover">
+                </div>
+                <div class="p-5">
+                  <h2 class="text-xl font-bold mb-2 h-14">${match.event_name}</h2>
+                  <p class="text-sm text-gray-300 mb-1 h-10">${match.match_name}</p>
+                  <p class="text-xs text-gray-400 mb-4">Start: ${new Date(match.startTime).toLocaleString()}</p>
+                  <div class="flex flex-wrap gap-3">
+                    ${match.dai_url ? `<a href="https://starry7c.github.io/CrixzyLive?stream=${match.dai_url}" target="_blank" class="btn btn-primary">Watch</a>` : ''}
+                    ${match.adfree_url ? `<a href="https://starry7c.github.io/CrixzyLive/?stream=${match.adfree_url}" target="_blank" class="btn btn-secondary">Ad-Free</a>` : ''}
+                  </div>
+                </div>
+              `;
+              sectionUpcoming.appendChild(card);
+            });
+        } else {
+            sectionUpcoming.innerHTML = '<p class="text-center col-span-full">No upcoming events found.</p>';
+        }
 
-                // **The provided JSON is a direct array, so we access it directly.**
-                events.forEach(match => {
-                    const card = document.createElement('div');
-                    card.className = 'match-card';
-                    
-                    const statusHTML = getMatchStatus(match);
-                    
-                    card.innerHTML = `
-                        <div class="card-header">
-                            ${match.src ? 
-                              `<img class="match-img" src="${match.src}" alt="${match.event_name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                               <div class="logo-placeholder" style="display:none;">🏏</div>` :
-                              `<div class="logo-placeholder">🏏</div>`
-                            }
-                            ${statusHTML}
-                        </div>
-                        <div class="card-content">
-                            <h3 class="match-title">${match.event_name || 'Cricket Match'}</h3>
-                            <p class="match-teams">${match.match_name || 'Teams TBD'}</p>
-                            <a href="https://starry7c.github.io/CrixzyLive?stream=${encodeURIComponent(match.dai_url)}" target="_blank" class="btn">🎬 Watch Live</a>
-                        </div>
-                    `;
-                    eventsContainer.appendChild(card);
-                    observer.observe(card); // Observe card for scroll animation
-                });
-            }
+      } catch (e) {
+        console.error("Error loading upcoming events:", e);
+        sectionUpcoming.innerHTML = '<p class="text-center col-span-full text-red-400">Could not load upcoming events. Please try again later.</p>';
+      }
+    }
 
-            fetchAndDisplayEvents();
-        });
-    </script>
+    // Fetch the upcoming events when the page loads
+    fetchUpcoming();
+  </script>
+
+  <p class="mt-10 text-center text-sm text-gray-500">Disclaimer: All content is fetched from public sources. We do not host any content. Credit: drm</p>
 </body>
 </html>
