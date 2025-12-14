@@ -1,747 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>crixZy Live - Premium Streaming</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Icons -->
-    <script src="https://unpkg.com/lucide@latest" crossorigin="anonymous"></script>
-    
-    <!-- Player Libraries -->
-    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
-    <script src="https://cdn.plyr.io/3.7.8/plyr.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest" crossorigin="anonymous"></script>
-    <script src="https://cdn.dashjs.org/latest/dash.all.min.js" crossorigin="anonymous"></script>
-
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
-
-    <style>
-        :root {
-            --brand-primary: #8b5cf6; /* Violet */
-            --brand-secondary: #06b6d4; /* Cyan */
-            --bg-dark: #0f172a;
-            --card-bg: #1e293b;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-dark);
-            color: #e2e8f0;
-            -webkit-user-select: none; /* Chrome/Safari */        
-            -moz-user-select: none; /* Firefox */
-            -ms-user-select: none; /* IE10+ */
-            user-select: none; /* Standard */
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0f172a;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--brand-primary);
-        }
-
-        /* Animations */
-        .fade-in {
-            animation: fadeIn 0.5s ease-out forwards;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .live-badge {
-            animation: pulse-red 2s infinite;
-        }
-
-        @keyframes pulse-red {
-            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-        }
-
-        .video-container {
-            position: relative;
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-            height: 0;
-            overflow: hidden;
-            background: black;
-            border-radius: 0.75rem;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-        }
-
-        .video-container video {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        /* Glassmorphism for Modal */
-        .glass-panel {
-            background: rgba(30, 41, 59, 0.95);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        /* Blur effect for devtools protection */
-        .blur-content {
-            filter: blur(6px);
-            pointer-events: none;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TV Channels</title>
+  <style>
+    body {
+      background-color: #0f172a;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 16px;
+    }
+    #country-filters {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .filter-btn {
+      cursor: pointer;
+      padding: 10px 20px;
+      font-weight: bold;
+      border-radius: 9999px;
+      background: #1e293b;
+      margin: 5px;
+      color: white;
+      border: none;
+    }
+    .filter-btn.active {
+      background: linear-gradient(to right, #6366f1, #7c3aed);
+      color: white;
+    }
+    #player-container {
+      position: sticky;
+      top: 0;
+      background-color: #0f172a;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+    #player-iframe {
+      width: 100%;
+      height: 50vh;
+      border: none;
+      border-radius: 1rem;
+    }
+    #channels-grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+    .channel-card {
+      background: #1e293b;
+      border-radius: 1rem;
+      transition: transform 0.3s ease, background 0.3s ease;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      cursor: pointer;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 1rem;
+    }
+    .channel-card:hover {
+      transform: translateY(-6px) scale(1.02);
+      background: #334155;
+    }
+    .channel-logo {
+      width: 100%;
+      height: 120px;
+      object-fit: contain;
+      margin-bottom: 10px;
+    }
+    .channel-name {
+      font-weight: 600;
+    }
+  </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body>
 
-    <!-- Disclaimer (Hidden by default, can be toggled) -->
-    <div id="disclaimerBox" class="hidden bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 relative" role="alert">
-        <p class="font-bold">Disclaimer</p>
-        <p class="text-sm">This content is fetched from public sources. We do not host any content. Free to use.</p>
-        <button onclick="document.getElementById('disclaimerBox').classList.add('hidden')" class="absolute top-2 right-2 text-yellow-700 font-bold">×</button>
-    </div>
+  <div id="player-container">
+    <iframe id="player-iframe" allowfullscreen></iframe>
+  </div>
 
-    <!-- Navbar -->
-    <nav class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-700/50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <!-- Logo -->
-                <div class="flex items-center gap-2 cursor-pointer" onclick="window.app && window.app.goHome()">
-                    <div class="bg-gradient-to-r from-violet-600 to-cyan-500 p-2 rounded-lg shadow-lg shadow-violet-500/20">
-                        <i data-lucide="tv-2" class="w-6 h-6 text-white"></i>
-                    </div>
-                    <span class="text-2xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
-                        crixZy<span class="text-violet-400">Live</span>
-                    </span>
-                </div>
+  <div id="country-filters"></div>
+  <div id="channels-grid"></div>
 
-                <!-- Desktop Nav -->
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="#" onclick="window.app.filterCategory('all')" class="text-slate-300 hover:text-white transition-colors text-sm font-medium">Home</a>
-                    <a href="#" onclick="window.app.filterCategory('Fancode')" class="text-slate-300 hover:text-white transition-colors text-sm font-medium text-violet-400 font-bold">Fancode</a>
-                    <a href="#" onclick="window.app.filterCategory('Sports')" class="text-slate-300 hover:text-white transition-colors text-sm font-medium">Sports</a>
-                    <a href="#" onclick="window.app.filterCategory('Gaming')" class="text-slate-300 hover:text-white transition-colors text-sm font-medium">Gaming</a>
-                </div>
+  <script>
+    const countryFiltersContainer = document.getElementById('country-filters');
+    const channelsGrid = document.getElementById('channels-grid');
+    const playerIframe = document.getElementById('player-iframe');
 
-                <!-- Search & Actions -->
-                <div class="flex items-center gap-4">
-                    <div class="relative hidden sm:block group">
-                        <input type="text" id="searchInput" placeholder="Search streams..." 
-                            class="bg-slate-800 text-sm text-slate-200 rounded-full pl-10 pr-4 py-2 w-64 border border-slate-700 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all">
-                        <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-2.5 text-slate-400 group-hover:text-violet-400 transition-colors"></i>
-                    </div>
-                    <button class="md:hidden p-2 text-slate-300 hover:text-white" onclick="document.getElementById('mobileMenu').classList.toggle('hidden')">
-                        <i data-lucide="menu" class="w-6 h-6"></i>
-                    </button>
-                    <!-- Settings Button (Simulating fetching new JSON) -->
-                    <button onclick="window.app.refreshData()" class="p-2 text-slate-300 hover:text-white rounded-full hover:bg-slate-800 transition" title="Refresh Data">
-                        <i data-lucide="refresh-cw" class="w-5 h-5"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Mobile Menu -->
-        <div id="mobileMenu" class="hidden md:hidden bg-slate-800 border-b border-slate-700">
-            <div class="px-2 pt-2 pb-3 space-y-1">
-                <a href="#" onclick="window.app.filterCategory('all')" class="block px-3 py-2 rounded-md text-base font-medium text-white bg-slate-900">Home</a>
-                <a href="#" onclick="window.app.filterCategory('Fancode')" class="block px-3 py-2 rounded-md text-base font-medium text-violet-400 hover:bg-slate-700 hover:text-white">Fancode</a>
-                <a href="#" onclick="window.app.filterCategory('Sports')" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:bg-slate-700 hover:text-white">Sports</a>
-            </div>
-        </div>
-    </nav>
+    let allChannelsData = [];
+    let currentCountry = '';
 
-    <!-- Main Content -->
-    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-        
-        <!-- Status Bar -->
-        <div id="statusMessage" class="hidden mb-6 p-4 rounded-lg bg-blue-900/30 border border-blue-500/30 text-blue-200 text-sm flex items-center gap-2">
-            <i data-lucide="info" class="w-4 h-4"></i>
-            <span id="statusText">Loading...</span>
-        </div>
-
-        <!-- Featured Section (Dynamically Populated) -->
-        <section id="heroSection" class="mb-12 hidden">
-            <!-- Injected via JS -->
-        </section>
-
-        <!-- Filters & Title -->
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-            <div>
-                <h2 class="text-2xl font-bold text-white flex items-center gap-2">
-                    <span class="w-2 h-8 bg-violet-600 rounded-full"></span>
-                    Live Channels
-                </h2>
-                <p class="text-slate-400 text-sm mt-1">Select a card to choose a stream source.</p>
-            </div>
-            
-            <div class="flex gap-2 overflow-x-auto pb-2 sm:pb-0 w-full sm:w-auto">
-                <button onclick="window.app.filterCategory('all')" class="whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium bg-violet-600 text-white hover:bg-violet-500 transition shadow-lg shadow-violet-900/20">All</button>
-                <button onclick="window.app.filterCategory('Fancode')" class="whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium bg-slate-800 text-violet-300 border border-violet-900/50 hover:bg-slate-700 transition">Fancode</button>
-                <button onclick="window.app.filterCategory('Sports')" class="whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition border border-slate-700">Sports</button>
-                <button onclick="window.app.filterCategory('Gaming')" class="whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition border border-slate-700">Gaming</button>
-            </div>
-        </div>
-
-        <!-- Channel Grid -->
-        <div id="channelGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            <!-- Cards injected via JS -->
-            <div class="col-span-full text-center py-20 text-slate-500">
-                <div class="animate-spin inline-block w-8 h-8 border-4 border-current border-t-transparent text-violet-500 rounded-full mb-4"></div>
-                <p>Loading channels from universe...</p>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- Footer -->
-    <footer class="border-t border-slate-800 bg-slate-900 py-8 mt-auto">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            <p class="text-slate-500 text-sm">© 2024 crixZy Live. All streams are user-submitted content.</p>
-            <div class="mt-4 flex justify-center gap-4">
-                <a href="#" class="text-slate-600 hover:text-violet-400"><i data-lucide="github" class="w-5 h-5"></i></a>
-                <a href="#" class="text-slate-600 hover:text-cyan-400"><i data-lucide="twitter" class="w-5 h-5"></i></a>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Video Player Modal -->
-    <div id="playerModal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true">
-        <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black/90 backdrop-blur-sm transition-opacity" onclick="window.app.closePlayer()"></div>
-        
-        <!-- Modal Content -->
-        <div class="relative w-full max-w-6xl mx-auto mt-0 sm:mt-10 lg:mt-20 px-4 animate-in fade-in zoom-in duration-300">
-            <div class="glass-panel rounded-2xl overflow-hidden shadow-2xl">
-                
-                <!-- Header -->
-                <div class="flex items-center justify-between px-6 py-4 border-b border-slate-700/50 bg-slate-900/50">
-                    <div class="flex items-center gap-3">
-                        <div class="w-2 h-2 rounded-full bg-red-500 live-badge"></div>
-                        <h3 id="modalTitle" class="text-lg font-bold text-white tracking-tight">Stream Title</h3>
-                    </div>
-                    <button onclick="window.app.closePlayer()" class="text-slate-400 hover:text-white hover:bg-white/10 p-2 rounded-full transition">
-                        <i data-lucide="x" class="w-6 h-6"></i>
-                    </button>
-                </div>
-
-                <!-- Player Wrapper -->
-                <div class="p-0 bg-black">
-                    <div class="video-container">
-                        <video id="player" class="plyr__video-embed" playsinline controls crossorigin></video>
-                    </div>
-                </div>
-
-                <!-- Source Selector & Details -->
-                <div class="px-6 py-6 bg-slate-900/80">
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                        
-                        <!-- Metadata -->
-                        <div class="flex items-start gap-4">
-                            <img id="modalIcon" src="" alt="Channel Icon" class="w-12 h-12 rounded-full object-cover border-2 border-violet-500/50">
-                            <div>
-                                <h4 id="modalChannel" class="font-semibold text-white">Channel Name</h4>
-                                <div class="flex items-center gap-4 text-sm text-slate-400 mt-1">
-                                    <span id="modalCategory" class="bg-slate-800 px-2 py-0.5 rounded text-xs border border-slate-700">Category</span>
-                                    <span class="flex items-center gap-1"><i data-lucide="users" class="w-3 h-3"></i> <span id="modalViewers">0</span></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Source Buttons -->
-                        <div class="flex flex-col gap-2">
-                            <span class="text-xs font-uppercase text-slate-500 font-bold tracking-wider">SELECT SOURCE</span>
-                            <div id="sourceButtons" class="flex flex-wrap gap-2">
-                                <!-- Buttons injected here -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Application Logic -->
-    <script>
-        // --- URLs from your specific request ---
-        const FANCODE_M3U_URL = "https://raw.githubusercontent.com/drmlive/fancode-live-events/main/fancode.m3u";
-        const FANCODE_JSON_URL = "https://api.allorigins.win/raw?url=https://raw.githubusercontent.com/drmlive/fancode-live-events/main/fancode.json";
-        
-        // Internal Fallback Data
-        const DEFAULT_DATA = {
-            "channels": [
-                {
-                    "id": "101",
-                    "name": "Sky Sports F1",
-                    "title": "Formula 1: Monaco Grand Prix Live",
-                    "category": "Sports",
-                    "logo": "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=100&h=100&fit=crop",
-                    "thumbnail": "https://images.unsplash.com/photo-1517502166878-35c93c0082f5?w=800&h=450&fit=crop",
-                    "viewers": "342K",
-                    "isLive": true,
-                    "links": [
-                        { "name": "1080p (HLS)", "url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", "type": "m3u8" }
-                    ]
-                }
-            ]
-        };
-
-        class App {
-            constructor() {
-                this.channels = [];
-                this.plyr = null;
-                this.hls = null;
-                this.dash = null;
-            }
-
-            async init() {
-                try {
-                    await this.fetchData();
-                    this.render();
-                    this.refreshIcons();
-                    
-                    const searchInput = document.getElementById('searchInput');
-                    if(searchInput) {
-                        searchInput.addEventListener('input', (e) => {
-                            this.filterSearch(e.target.value);
-                        });
-                    }
-                    console.log("App initialized successfully");
-                } catch (e) {
-                    console.error("Initialization error:", e);
-                }
-            }
-            
-            refreshIcons() {
-                if (window.lucide) {
-                    window.lucide.createIcons();
-                }
-            }
-
-            // --- Robust Multi-Source Data Fetching ---
-            async fetchData() {
-                const statusEl = document.getElementById('statusText');
-                const statusContainer = document.getElementById('statusMessage');
-                
-                try {
-                    if(statusContainer) statusContainer.classList.remove('hidden');
-                    if(statusEl) statusEl.innerText = 'Syncing Fancode Events...';
-                    
-                    let allChannels = [];
-                    
-                    // 1. Fetch Live M3U (Parsing logic adapted from your snippet)
-                    try {
-                        const resM3u = await fetch(FANCODE_M3U_URL);
-                        const textM3u = await resM3u.text();
-                        const m3uChannels = this.parseM3U(textM3u);
-                        allChannels = [...allChannels, ...m3uChannels];
-                    } catch (e) {
-                        console.error("M3U Fetch Error:", e);
-                    }
-
-                    // 2. Fetch Upcoming JSON (Logic adapted from your snippet)
-                    try {
-                        const resJson = await fetch(FANCODE_JSON_URL);
-                        const json = await resJson.json();
-                        const jsonChannels = this.parseFancodeJson(json);
-                        allChannels = [...allChannels, ...jsonChannels];
-                    } catch (e) {
-                        console.error("JSON Fetch Error:", e);
-                    }
-
-                    // 3. Fallback / Merge
-                    if (allChannels.length === 0) {
-                         allChannels = DEFAULT_DATA.channels;
-                    } else {
-                        // Add default demo channels for other categories
-                        allChannels = [...allChannels, ...DEFAULT_DATA.channels];
-                    }
-
-                    this.channels = allChannels;
-                    
-                    if(statusEl) statusEl.innerText = `Synced ${this.channels.length} channels`;
-                    if(statusContainer) setTimeout(() => statusContainer.classList.add('hidden'), 2000);
-
-                } catch (error) {
-                    console.error("Global Fetch failed:", error);
-                    this.channels = DEFAULT_DATA.channels;
-                    if(statusContainer) setTimeout(() => statusContainer.classList.add('hidden'), 3000);
-                }
-            }
-
-            // --- Specific Parsers ---
-
-            parseM3U(text) {
-                const lines = text.split('\n');
-                const channels = [];
-                let currentTitle = "";
-                let currentLogo = "";
-
-                for (let i = 0; i < lines.length; i++) {
-                    const line = lines[i].trim();
-                    if (line.startsWith("#EXTINF")) {
-                        // Parse Logo
-                        const logoMatch = line.match(/tvg-logo="(.*?)"/);
-                        currentLogo = logoMatch ? logoMatch[1] : "https://upload.wikimedia.org/wikipedia/commons/1/13/Fancode_logo.png";
-                        
-                        // Parse Title (everything after the comma)
-                        const titleMatch = line.match(/,(.+)$/);
-                        currentTitle = titleMatch ? titleMatch[1].trim() : "Fancode Live Event";
-                    } else if (line.startsWith("http")) {
-                        // Create Channel Object
-                        channels.push({
-                            id: "fc-live-" + Math.random().toString(36).substr(2, 9),
-                            name: "Fancode Live",
-                            title: currentTitle,
-                            category: "Fancode",
-                            logo: currentLogo,
-                            thumbnail: currentLogo, // Use logo as thumb if no specific thumb
-                            viewers: "LIVE",
-                            isLive: true,
-                            links: [
-                                { name: "Live Stream", url: line, type: "m3u8" } // Assuming HLS for M3U links
-                            ]
-                        });
-                    }
-                }
-                return channels;
-            }
-
-            parseFancodeJson(data) {
-                if (!data || !data.matches) return [];
-                
-                return data.matches.map(match => {
-                    const links = [];
-                    // Ad-Free Link (Priority)
-                    if (match.adfree_url) {
-                        links.push({ name: "Ad-Free (HD)", url: match.adfree_url, type: "m3u8" });
-                    }
-                    // DAI Link (Backup)
-                    if (match.dai_url) {
-                        links.push({ name: "Standard (DAI)", url: match.dai_url, type: "m3u8" });
-                    }
-                    
-                    // Only return if playable
-                    if (links.length === 0) return null;
-
-                    return {
-                        id: match.match_id ? match.match_id.toString() : "fc-up-" + Math.random().toString(36),
-                        name: match.event_name || "Fancode Event",
-                        title: match.match_name || match.title || "Upcoming Match",
-                        category: "Fancode",
-                        logo: "https://upload.wikimedia.org/wikipedia/commons/1/13/Fancode_logo.png",
-                        thumbnail: match.src || "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800",
-                        viewers: match.statusStr || match.startTime || "Upcoming",
-                        isLive: match.status === "LIVE",
-                        links: links
-                    };
-                }).filter(c => c !== null);
-            }
-            
-            async refreshData() {
-                const icon = document.querySelector('.lucide-refresh-cw');
-                if(icon) icon.classList.add('animate-spin');
-                await this.fetchData();
-                this.render();
-                if(icon) icon.classList.remove('animate-spin');
-            }
-
-            // --- Rendering ---
-            render() {
-                const grid = document.getElementById('channelGrid');
-                const hero = document.getElementById('heroSection');
-                
-                if (!grid || !hero) return;
-
-                grid.innerHTML = '';
-                
-                if (this.channels.length === 0) {
-                    grid.innerHTML = `<div class="col-span-full text-center text-slate-500">No channels found.</div>`;
-                    return;
-                }
-
-                // Render Hero (Use first live channel preferably)
-                const featured = this.channels.find(c => c.category === 'Fancode') || this.channels[0];
-                hero.innerHTML = `
-                    <div class="relative rounded-2xl overflow-hidden aspect-[21/9] md:aspect-[3/1] group cursor-pointer shadow-2xl shadow-violet-900/20 border border-slate-700/50"
-                         onclick="window.app.openPlayer('${featured.id}', 0)">
-                        <img src="${featured.thumbnail}" class="absolute inset-0 w-full h-full object-cover transition transform duration-700 group-hover:scale-105" alt="${featured.title}">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
-                        <div class="absolute bottom-0 left-0 p-6 md:p-10 w-full">
-                            <span class="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded mb-3 inline-block animate-pulse">FEATURED LIVE</span>
-                            <h1 class="text-2xl md:text-4xl font-bold text-white mb-2 max-w-2xl leading-tight drop-shadow-md">${featured.title}</h1>
-                            <div class="flex items-center gap-4 text-slate-300">
-                                <div class="flex items-center gap-2">
-                                    <img src="${featured.logo}" class="w-8 h-8 rounded-full border border-white/20">
-                                    <span class="font-medium text-white">${featured.name}</span>
-                                </div>
-                                <span class="bg-slate-800/80 backdrop-blur px-2 py-0.5 rounded text-xs border border-white/10 text-cyan-400">${featured.category}</span>
-                            </div>
-                        </div>
-                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition duration-300">
-                             <div class="bg-violet-600/90 text-white p-4 rounded-full backdrop-blur shadow-lg transform scale-90 group-hover:scale-100 transition">
-                                <i data-lucide="play" class="w-8 h-8 fill-current"></i>
-                             </div>
-                        </div>
-                    </div>
-                `;
-                hero.classList.remove('hidden');
-
-                // Render Grid
-                this.channels.forEach(channel => {
-                    const card = document.createElement('div');
-                    card.className = "bg-slate-800 rounded-xl overflow-hidden hover:-translate-y-1 transition duration-300 border border-slate-700/50 hover:border-violet-500/50 hover:shadow-xl hover:shadow-violet-900/10 group flex flex-col h-full";
-                    
-                    let linksHtml = '';
-                    if (channel.links && Array.isArray(channel.links)) {
-                        channel.links.forEach((link, index) => {
-                            const isAdFree = link.name.toLowerCase().includes('ad-free');
-                            const borderClass = isAdFree ? 'border-violet-500/50 text-violet-200 bg-violet-900/20' : 'border-slate-600 text-white bg-slate-700';
-                            
-                            linksHtml += `
-                                <button onclick="event.stopPropagation(); window.app.openPlayer('${channel.id}', ${index})" 
-                                    class="flex-1 text-xs py-2 rounded transition border ${borderClass} hover:border-violet-500 truncate px-1 hover:bg-violet-600" title="${link.name}">
-                                    ${link.name}
-                                </button>
-                            `;
-                        });
-                    }
-
-                    // Viewers badge / Start time logic
-                    let badgeHtml = '';
-                    if(channel.isLive || (typeof channel.viewers === 'string' && channel.viewers.toLowerCase().includes('live'))) {
-                         badgeHtml = `
-                            <div class="absolute top-2 left-2 z-10">
-                                <span class="bg-red-600/90 text-white text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
-                                    <div class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div> LIVE
-                                </span>
-                            </div>`;
-                    }
-
-                    card.innerHTML = `
-                        <div class="relative aspect-video cursor-pointer" onclick="window.app.openPlayer('${channel.id}', 0)">
-                            <img src="${channel.thumbnail}" loading="lazy" class="w-full h-full object-cover" alt="${channel.title}">
-                            <div class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition"></div>
-                            ${badgeHtml}
-                            <div class="absolute bottom-2 right-2 bg-black/60 backdrop-blur px-1.5 py-0.5 rounded text-[10px] text-white">
-                                ${channel.viewers}
-                            </div>
-                            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-200 bg-black/20">
-                                <i data-lucide="play-circle" class="w-12 h-12 text-white drop-shadow-lg"></i>
-                            </div>
-                        </div>
-                        
-                        <div class="p-4 flex flex-col flex-grow">
-                            <div class="flex items-start gap-3 mb-3">
-                                <img src="${channel.logo}" class="w-10 h-10 rounded-full border border-slate-600 object-cover shrink-0">
-                                <div class="min-w-0">
-                                    <h3 class="text-white font-semibold text-sm truncate leading-tight mb-1" title="${channel.title}">${channel.title}</h3>
-                                    <p class="text-slate-400 text-xs truncate hover:text-violet-400 transition">${channel.name}</p>
-                                </div>
-                            </div>
-                            
-                            <div class="mt-auto pt-3 border-t border-slate-700/50">
-                                <div class="text-[10px] text-slate-500 font-bold mb-2 uppercase tracking-wide">Select Source</div>
-                                <div class="flex gap-2 flex-wrap">
-                                    ${linksHtml}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    grid.appendChild(card);
-                });
-                
-                this.refreshIcons();
-            }
-
-            filterCategory(cat) {
-                if (cat === 'all') {
-                    this.fetchData().then(() => {
-                        this.render();
-                    }); 
-                } else {
-                    const filtered = this.channels.filter(c => (c.category || '').toLowerCase() === cat.toLowerCase());
-                    const temp = this.channels; 
-                    this.channels = filtered;
-                    this.render();
-                    this.channels = temp; 
-                }
-            }
-
-            filterSearch(query) {
-                const lower = query.toLowerCase();
-                const cards = document.querySelectorAll('#channelGrid > div');
-                cards.forEach(card => {
-                    const title = card.querySelector('h3')?.innerText.toLowerCase() || '';
-                    const name = card.querySelector('p')?.innerText.toLowerCase() || '';
-                    if (title.includes(lower) || name.includes(lower)) {
-                        card.style.display = '';
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-            }
-
-            // --- Player Logic ---
-            openPlayer(channelId, linkIndex) {
-                const channel = this.channels.find(c => c.id === channelId);
-                if (!channel) return;
-
-                const link = channel.links[linkIndex] || channel.links[0];
-                
-                // Update UI
-                const modalTitle = document.getElementById('modalTitle');
-                if(modalTitle) modalTitle.innerText = channel.title;
-                
-                const modalChannel = document.getElementById('modalChannel');
-                if(modalChannel) modalChannel.innerText = channel.name;
-                
-                const modalCategory = document.getElementById('modalCategory');
-                if(modalCategory) modalCategory.innerText = channel.category;
-                
-                const modalViewers = document.getElementById('modalViewers');
-                if(modalViewers) modalViewers.innerText = channel.viewers;
-                
-                const modalIcon = document.getElementById('modalIcon');
-                if(modalIcon) modalIcon.src = channel.logo;
-                
-                // Render Source Buttons inside Modal
-                const btnContainer = document.getElementById('sourceButtons');
-                if (btnContainer) {
-                    btnContainer.innerHTML = '';
-                    channel.links.forEach((l, idx) => {
-                        const activeClass = idx === linkIndex ? 'bg-violet-600 text-white border-violet-500' : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700';
-                        const btn = document.createElement('button');
-                        btn.className = `px-3 py-1.5 rounded text-xs font-medium border transition ${activeClass}`;
-                        btn.innerHTML = `${l.name}`;
-                        btn.onclick = () => this.loadStream(l);
-                        btnContainer.appendChild(btn);
-                    });
-                }
-
-                const modal = document.getElementById('playerModal');
-                if(modal) modal.classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-
-                this.loadStream(link);
-            }
-
-            loadStream(link) {
-                const video = document.getElementById('player');
-                if (!video) return;
-
-                const source = link.url;
-                const type = link.type || (source.includes('.m3u8') ? 'm3u8' : 'mpd');
-
-                // Cleanup
-                if (this.plyr) { this.plyr.destroy(); this.plyr = null; }
-                if (this.hls) { this.hls.destroy(); this.hls = null; }
-                if (this.dash) { this.dash.reset(); this.dash = null; }
-
-                try {
-                    // --- 1. DASH with DRM (Fancode Support) ---
-                    if (type === 'mpd') {
-                        if (typeof dashjs !== 'undefined') {
-                            this.dash = dashjs.MediaPlayer().create();
-                            this.dash.initialize(video, source, true);
-                            
-                            // DRM Configuration (ClearKey or Widevine)
-                            if (link.drm) {
-                                this.dash.setProtectionData(link.drm);
-                            } else if (link.license_key) {
-                                this.dash.setProtectionData({
-                                    "org.w3.clearkey": {
-                                        "clearkeys": link.license_key
-                                    }
-                                });
-                            }
-
-                            this.initPlyr(video);
-                        }
-                    // --- 2. HLS ---
-                    } else if (type === 'm3u8') {
-                        if (typeof Hls !== 'undefined' && Hls.isSupported()) {
-                            this.hls = new Hls();
-                            this.hls.loadSource(source);
-                            this.hls.attachMedia(video);
-                            this.initPlyr(video);
-                        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                            video.src = source;
-                            this.initPlyr(video);
-                        }
-                    } else {
-                        // Standard MP4
-                        video.src = source;
-                        this.initPlyr(video);
-                    }
-                } catch (err) {
-                    console.error("Error loading stream:", err);
-                }
-            }
-
-            initPlyr(videoElem) {
-                if (typeof Plyr === 'undefined') return;
-
-                const defaultOptions = {
-                    controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'],
-                    settings: ['quality', 'speed', 'loop']
-                };
-                
-                try {
-                    this.plyr = new Plyr(videoElem, defaultOptions);
-                    setTimeout(() => {
-                        if(this.plyr) {
-                            this.plyr.play().catch(e => console.log("Autoplay blocked"));
-                        }
-                    }, 500);
-                } catch (e) { console.error("Plyr init failed", e); }
-            }
-
-            closePlayer() {
-                const modal = document.getElementById('playerModal');
-                if(modal) modal.classList.add('hidden');
-                document.body.style.overflow = '';
-                if (this.plyr) this.plyr.stop();
-                const video = document.getElementById('player');
-                if(video) video.pause();
-            }
-            
-            goHome() {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                this.filterCategory('all');
-            }
+    async function fetchData() {
+      try {
+        const response = await fetch('country_wise_tv.json');
+        allChannelsData = await response.json();
+        populateCountryFilters();
+        // Load the first country's channels by default
+        if (allChannelsData.length > 0) {
+          currentCountry = allChannelsData[0].country;
+          filterChannels(currentCountry);
+          updateActiveButton(currentCountry);
         }
+      } catch (error) {
+        console.error('Error fetching channel data:', error);
+      }
+    }
 
-        // --- Security / Protection (As requested) ---
-        // Disable right-click
-        document.addEventListener('contextmenu', e => e.preventDefault());
-
-        // Basic Key blocking
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'F12') { e.preventDefault(); }
-            if (e.ctrlKey && e.shiftKey && ['I','C','J'].includes(e.key.toUpperCase())) { e.preventDefault(); }
-            if (e.ctrlKey && e.key.toLowerCase() === 'u') { e.preventDefault(); }
+    function populateCountryFilters() {
+      allChannelsData.forEach(countryData => {
+        const button = document.createElement('button');
+        button.className = 'filter-btn';
+        button.textContent = countryData.country;
+        button.onclick = () => {
+          currentCountry = countryData.country;
+          filterChannels(currentCountry);
+          updateActiveButton(currentCountry);
+        };
+        countryFiltersContainer.appendChild(button);
+      });
+    }
+    
+    function updateActiveButton(countryName) {
+        const buttons = document.querySelectorAll('.filter-btn');
+        buttons.forEach(button => {
+            if (button.textContent === countryName) {
+                button.classList.add('active');
+            } else {
+                button.classList.remove('active');
+            }
         });
+    }
 
-        // Initialize
-        window.addEventListener('DOMContentLoaded', () => {
-            window.app = new App();
-            window.app.init();
+    function filterChannels(countryName) {
+      channelsGrid.innerHTML = '';
+      const countryData = allChannelsData.find(c => c.country === countryName);
+      if (countryData) {
+        countryData.channels.forEach(channel => {
+          const card = document.createElement('div');
+          card.className = 'channel-card';
+          card.onclick = () => {
+            playChannel(channel.url);
+          };
+
+          const logo = document.createElement('img');
+          logo.src = channel.logo;
+          logo.alt = channel.name;
+          logo.className = 'channel-logo';
+          logo.onerror = () => {
+              // some logos might fail to load
+              logo.src = 'https://via.placeholder.com/150';
+          }
+          card.appendChild(logo);
+
+          const name = document.createElement('div');
+          name.className = 'channel-name';
+          name.textContent = channel.name;
+          card.appendChild(name);
+
+          channelsGrid.appendChild(card);
         });
+      }
+    }
 
-    </script>
+    function playChannel(streamUrl) {
+      const playerUrl = `https://starry7c.github.io/CrixzyLive/?stream=${encodeURIComponent(streamUrl)}`;
+      playerIframe.src = playerUrl;
+      // Scroll to the player
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Initial fetch
+    fetchData();
+  </script>
+
 </body>
 </html>
